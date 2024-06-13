@@ -1,10 +1,13 @@
 import math
 import numpy as np
+import numexpr as ne
 from PIL import Image
+import timeit
 
 class FastFCGR:
     def __init__(self):
         self.__sequence = ""
+        self.__k = 0
         self.__matrix = None
         self.__maxValue = 0
         self.__currMatrixSize = 0
@@ -28,7 +31,7 @@ class FastFCGR:
     #endregion
 
     #region readers
-    def read_sequence_from_file(self, path:str, force: bool = False):       
+    def set_sequence_from_file(self, path:str, force: bool = False):       
         if not force and self.__sequence:
             raise Exception("Sequence already loaded. Use force=True to reload.")
         with open(path, 'r') as file:
@@ -46,26 +49,32 @@ class FastFCGR:
     def initialize(self, k):
         matrixSize = int(2 ** k)
         self.__currMatrixSize = matrixSize
-        self.__matrix = np.zeros((matrixSize, matrixSize), dtype=np.ulonglong)
+        self.__matrix = np.zeros((matrixSize, matrixSize), dtype=np.uint)
         self.__maxValue = 0
+        self.__k = k
 
     def calculate(self, scalingFactor:float=0.5):
         lastX, lastY = 0.0, 0.0
+        self.__maxValue = 0
 
         for i in range(1, len(self.__sequence) + 1):
             base = self.__sequence[i - 1]
             if base not in 'aAcCgGtT': #TODO: check if this is the correct way to handle invalid bases
                 continue
 
-            dirX = 1 if base in 'tgTG' else -1
+            dirX : float = 1 if base in 'tgTG' else -1
             dirY = 1 if base in 'atAT' else -1
 
             lastX += scalingFactor * (dirX - lastX)
             lastY += scalingFactor * (dirY - lastY)
 
+            if(i < self.__k):
+                continue
+
+            # x = int(math.floor(np.nextafter((lastX + np.nextafter(1.0,0)),0) * self.__currMatrixSize / 2))
+            # y = int(math.floor(np.nextafter(np.nextafter(1.0,0) - lastY,0) * self.__currMatrixSize / 2))
             x = int(math.floor((lastX + 1.0) * self.__currMatrixSize / 2))
             y = int(math.floor((1.0 - lastY) * self.__currMatrixSize / 2))
-
             self.__matrix[y, x] += 1
 
             if self.__matrix[y, x] > self.__maxValue:
@@ -108,6 +117,8 @@ class FastFCGR:
             raise ValueError("Number is too large to be represented by standard Pillow image modes.")
         
     @staticmethod
-    def __rescale_interval(value, s_max:int, d_max:int):      
-        return (d_max - ((value / s_max) * d_max)).astype(FastFCGR.__numpy_type_from_bits(FastFCGR.__num_bits_needed(d_max)))
+    def __rescale_interval(value, s_max:int, d_max:int):            
+        # mat = d_max - ((value / s_max) * d_max)
+        mat = ne.evaluate("d_max - ((value / s_max) * d_max)")
+        return mat.astype(FastFCGR.__numpy_type_from_bits(FastFCGR.__num_bits_needed(d_max)))
     #endregion 
