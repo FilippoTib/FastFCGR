@@ -6,13 +6,13 @@ build-backend = "hatchling.build"
 name = "fastfcgr"
 version = "0.1.5"
 authors = [
-  { name="FilippoTi", email="filippo.tiberio@studenti.unipd.it" },
+  { name="Filippo Tiberio", email="filippo.tiberio@studenti.unipd.it" },
 ]
 description = "FCGR class (Frequency Chaos Game Representation)"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
-    'Development Status :: 3 - Alpha',
+    'Development Status :: 4 - Beta',
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
