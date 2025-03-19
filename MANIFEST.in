@@ -1,2 +1,0 @@
-exclude fastfcgr.__pycache__
-exclude .pytest_cache
