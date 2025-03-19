@@ -6,6 +6,8 @@ FastFCGR class for Frequency Chaos Game Representation
 The `FastFCGR` class generates a Frequency Chaos Game Representation (FCGR) for biological sequences (DNA or RNA).
 It computes a matrix representing the distribution of nucleotide bases within the sequence using a geometrical algorithm based on fractal movements.
 
+This class was primarily developed as a computational tool within the scope of an undergraduate thesis project. The central aim of the project was to achieve optimal computational performance and efficiency in generating FCGRs.
+
 ## Usage Guide
 
 ### Example
